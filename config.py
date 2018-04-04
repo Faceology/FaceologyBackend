@@ -5,6 +5,8 @@ import sys
 
 
 app = Flask(__name__)
+consumer_key = None
+consumer_secret = None
 port_num = None
 
 try:
@@ -18,3 +20,11 @@ try:
 
 except Exception as exception:
     sys.exit("Couldn't get connection credentials. Does .config exist?")
+
+try:
+    lines = [line.rstrip('\n') for line in open('.linkedin')]
+    consumer_key = lines[0]
+    consumer_secret = lines[1]
+
+except Exception as exception:
+    sys.exit("Couldn't get linkedin credentials. Does .linkedin exist?")
