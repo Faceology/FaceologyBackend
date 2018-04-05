@@ -57,7 +57,7 @@ class UserInfo(Resource):
         # this section is for testing purposes only
         RETURN_URL = "http://localhost:8000"
         authentication = linkedin.LinkedInAuthentication(consumer_key, consumer_secret, RETURN_URL)
-        print authentication.authorization_url
+        #print authentication.authorization_url
         #authentication.authorization_code = "AQTt1BRyR7UZ0H3viBz98ThQlrRifgyAyuiRF3cYWF-41VYw76FKWtMmhvF0GKnaIImsKVRhxmpAoMuunVg236o88CLpRjOk8ohuT3JMD3BydRKbDXBSfsvUmacw_nxMI50es1zR3ZVYuhOJy7ncCXytQ4WXmg"
         #application = linkedin.LinkedInApplication(authentication)
         #token = authentication.get_access_token()
@@ -66,7 +66,7 @@ class UserInfo(Resource):
         # modify this based on what we want to display in the app
         linkedin_info = application.get_profile(selectors=['id', 'formatted-name', 'location', 'num-connections', 'picture-urls::(original)', 'summary'])
         #print linkedin_info
-        print linkedin_info
+        #print linkedin_info
 
         # add a user and their photo if they don't already exist
         matching_user = session.query(Entity).filter_by(name = linkedin_info['formattedName']).first()

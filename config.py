@@ -19,6 +19,7 @@ try:
     session = Session()
 
 except Exception as exception:
+    print(exception)
     sys.exit("Couldn't get connection credentials. Does .config exist?")
 
 try:

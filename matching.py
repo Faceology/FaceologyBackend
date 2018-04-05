@@ -1,5 +1,6 @@
 import face_recognition
-import urllib, cStringIO
+from io import StringIO
+import urllib
 import base64
 
 
@@ -13,12 +14,12 @@ def find_best_match(event_users, image):
 # player_other will have an additional field called 'score' post method-call
 def compute_similarity(stored_user, photo_target):
     url_stored = stored_user['user_info']['photo']
-    stored_file = cStringIO.StringIO(urllib.urlopen(url_stored).read())
+    stored_file = StringIO.StringIO(urllib.urlopen(url_stored).read())
 
     known_picture = face_recognition.load_image_file(stored_file)
     known_face_encoding = face_recognition.face_encodings(known_picture)[0]
 
-    photo_target = cStringIO.StringIO(photo_target)
+    photo_target = StringIO.StringIO(photo_target)
     unknown_picture = face_recognition.load_image_file(photo_target)
     unknown_face_encoding = face_recognition.face_encodings(unknown_picture)[0]
 
