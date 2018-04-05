@@ -7,8 +7,6 @@ from flask_restful import Resource, Api, reqparse, inputs
 from flask_httpauth import HTTPBasicAuth
 from config import app, session, port_num, consumer_key, consumer_secret
 from werkzeug.exceptions import Unauthorized
-from linkedin import linkedin
-from linkedin import server
 
 auth = HTTPBasicAuth()
 my_api = Api(app)
@@ -26,11 +24,10 @@ class UserInfo(Resource):
         # used for posting new user information
         self.match_reqparse = reqparse.RequestParser()
         self.match_reqparse.add_argument('eventKey', type=str, location='args', required=True)
-        self.match_reqparse.add_argument('imageUrl', type=str, location='args', required=False)
         self.match_reqparse.add_argument('image', type=str, location='args', required=False)
 
         self.post_reqparse = reqparse.RequestParser()
-        self.post_reqparse.add_argument('accessToken', type=str, location='json', required=True)
+        self.post_reqparse.add_argument('linkedinInfo', type=dict, location='json', required=True)
         self.post_reqparse.add_argument('eventKey', type=str, location='json', required=True)
 
     def get(self):
@@ -43,7 +40,7 @@ class UserInfo(Resource):
 
     def post(self):
         params = self.post_reqparse.parse_args()
-        token = params['accessToken']
+        linkedin_info = params['linkedinInfo']
         event_key = params['eventKey']
 
         # find matching event (validating QR code)
@@ -54,19 +51,7 @@ class UserInfo(Resource):
         else:
             abort(400, 'No event matched this key!')
 
-        # this section is for testing purposes only
-        RETURN_URL = "http://localhost:8000"
-        authentication = linkedin.LinkedInAuthentication(consumer_key, consumer_secret, RETURN_URL)
-        #print authentication.authorization_url
-        #authentication.authorization_code = "AQTt1BRyR7UZ0H3viBz98ThQlrRifgyAyuiRF3cYWF-41VYw76FKWtMmhvF0GKnaIImsKVRhxmpAoMuunVg236o88CLpRjOk8ohuT3JMD3BydRKbDXBSfsvUmacw_nxMI50es1zR3ZVYuhOJy7ncCXytQ4WXmg"
-        #application = linkedin.LinkedInApplication(authentication)
-        #token = authentication.get_access_token()
-        token = "AQWNj-I32UG4eiB0rjDqA-CN6aiLlGS1zs4ydUuBHSQ2S9txjXSPetNlHXK09k4C_g1ycIDgl6U-vqGhigwsMoaW7Gy7oYIhiYsshd6fyw0a6TWFgP_8EqHZPIZB-n6A87tvaZ54vLQXwZ01JHDD2iKZfIN-sOt3qEIAaV_7NKQXCRAvuTOVh7PtIPJFhAwGLIOfkNyi4s9J12HOSo0p022icu24HktEDlDtYBY_2VIE_d4dx_jPFSR0OqD3R-HQZb0Bk7HB_DVgZ0ATs3blSydiCHij7vsF78kYN8LiVs0DOdPGKzE1SFg9ddnUliG6vaPRCf9DkgWdgUbYVsRfYnTkseRWAg"
-        application = linkedin.LinkedInApplication(token=token)
-        # modify this based on what we want to display in the app
-        linkedin_info = application.get_profile(selectors=['id', 'formatted-name', 'location', 'num-connections', 'picture-urls::(original)', 'summary'])
-        #print linkedin_info
-        #print linkedin_info
+        #linkedin_info = application.get_profile(selectors=['id', 'formatted-name', 'location', 'num-connections', 'picture-urls::(original)', 'summary'])
 
         # add a user and their photo if they don't already exist
         matching_user = session.query(Entity).filter_by(name = linkedin_info['formattedName']).first()
