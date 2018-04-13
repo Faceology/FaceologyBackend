@@ -18,6 +18,7 @@ class UserInfo(Resource):
         self.match_reqparse = reqparse.RequestParser()
         self.match_reqparse.add_argument('eventKey', type=str, location='args', required=True)
         self.match_reqparse.add_argument('image', type=str, location='args', required=False)
+        self.match_reqparse.add_argument('previousIds', type=list, location='args', required=False)
 
         self.post_reqparse = reqparse.RequestParser()
         self.post_reqparse.add_argument('linkedinInfo', type=dict, location='json', required=False)
@@ -26,7 +27,7 @@ class UserInfo(Resource):
     def get(self):
         params = self.match_reqparse.parse_args()
         event_id = session.query(Event).filter_by(event_key = params['eventKey']).first().as_dict()['event_id']
-        event_users = session.query(EmployerInfo).filter_by(event_id = event_id).all()
+        event_users = session.query(EmployerInfo).filter(EmployerInfo.event_id == event_id and EmployerInfo.user_id not in params['previousIds']).all()
         event_users = map(lambda user: user.as_dict(), event_users)
         best_match = find_best_match(event_users, params['image'])
         return jsonify({'bestMatch' : best_match})
