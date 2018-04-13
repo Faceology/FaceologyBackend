@@ -66,7 +66,6 @@ class UserInfo(Resource):
 
             # add positions
             for position in linkedin_info['positions']['values']:
-                print "ADDING POSITION"
                 date_start = str(position['startDate']['month']) + "/" + str(position['startDate']['year'])
                 date_end = str(position['endDate']['month']) + "/" + str(position['endDate']['year']) if 'endDate' in position.keys() else None
                 position_to_add = EmployerJob(user_info.as_dict()['employerInfoId'], position['location']['name'], position['title'], position['company']['name'], date_start, date_end, position['isCurrent'])
@@ -99,7 +98,5 @@ my_api.add_resource(EventInfo, '/api/event', endpoint = 'event')
 
 # main server run line
 if __name__ == '__main__':
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
     app.run(debug=True, port = port_num, host = '0.0.0.0')
 
