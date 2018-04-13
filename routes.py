@@ -26,7 +26,7 @@ class UserInfo(Resource):
 
     def put(self):
         params = self.match_reqparse.parse_args()
-        event_id = session.query(Event).filter_by(event_key = params['eventKey']).first().as_dict()['event_id']
+        event_id = session.query(Event).filter_by(event_key = params['eventKey']).first().as_dict()['eventId']
         if not event_id:
             abort(400, 'event already exists!')
         event_users = session.query(EmployerInfo).filter(EmployerInfo.event_id == event_id and EmployerInfo.user_id not in params['previousIds']).all()

@@ -13,7 +13,7 @@ def find_best_match(event_users, image):
 
 # player_other will have an additional field called 'score' post method-call
 def compute_similarity(stored_user, photo_target):
-    url_stored = stored_user['user_info']['photo']
+    url_stored = stored_user['userInfo']['photo']
     stored_file = StringIO.StringIO(urllib.urlopen(url_stored).read())
 
     known_picture = face_recognition.load_image_file(stored_file)
