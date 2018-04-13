@@ -16,15 +16,15 @@ class UserInfo(Resource):
     def __init__(self):
         # used for posting new user information
         self.match_reqparse = reqparse.RequestParser()
-        self.match_reqparse.add_argument('eventKey', type=str, location='args', required=True)
-        self.match_reqparse.add_argument('image', type=str, location='args', required=False)
-        self.match_reqparse.add_argument('previousIds', type=list, location='args', required=False)
+        self.match_reqparse.add_argument('eventKey', type=str, location='json', required=True)
+        self.match_reqparse.add_argument('image', type=str, location='json', required=False)
+        self.match_reqparse.add_argument('previousIds', type=list, location='json', required=False)
 
         self.post_reqparse = reqparse.RequestParser()
         self.post_reqparse.add_argument('linkedinInfo', type=dict, location='json', required=False)
         self.post_reqparse.add_argument('eventKey', type=str, location='json', required=False)
 
-    def get(self):
+    def put(self):
         params = self.match_reqparse.parse_args()
         event_id = session.query(Event).filter_by(event_key = params['eventKey']).first().as_dict()['event_id']
         event_users = session.query(EmployerInfo).filter(EmployerInfo.event_id == event_id and EmployerInfo.user_id not in params['previousIds']).all()
