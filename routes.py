@@ -48,7 +48,7 @@ class UserInfo(Resource):
         matching_user = session.query(Entity).filter_by(name = linkedin_info['formattedName']).first()
         user_id = None
         if matching_user is None:
-            if (linkedin_info['pictureUrls'] and linkedin_info['pictureUrls']['values'] > 0):
+            if (linkedin_info['pictureUrls'] and len(linkedin_info['pictureUrls']['values']) > 0):
                 new_user = Entity(str(linkedin_info['formattedName']), str(linkedin_info['pictureUrls']['values'][0]))
                 session.add(new_user)
                 session.commit()
