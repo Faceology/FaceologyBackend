@@ -6,7 +6,7 @@ import base64
 
 def find_best_match(event_users, image):
     # decode the image
-    image = base_64.decodebytes(image)
+    image = image.decode('base64')
     scored_users = map(lambda user: compute_similarity(user, image), event_users)
     best_match = max(scored_users, key = lambda user: user['score'])
     return best_match
