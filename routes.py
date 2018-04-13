@@ -1,4 +1,5 @@
 import requests
+import sys
 from collections import Counter
 from models import *
 from flask import json
@@ -11,14 +12,6 @@ from werkzeug.exceptions import Unauthorized
 auth = HTTPBasicAuth()
 my_api = Api(app)
 
-class User(Resource):
-    def __init__(self):
-        # used for auth
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('username', type=str, location='args', required=True)
-        self.reqparse.add_argument('password', type=str, location='args', required=True)
-
-
 class UserInfo(Resource):
     def __init__(self):
         # used for posting new user information
@@ -27,8 +20,8 @@ class UserInfo(Resource):
         self.match_reqparse.add_argument('image', type=str, location='args', required=False)
 
         self.post_reqparse = reqparse.RequestParser()
-        self.post_reqparse.add_argument('linkedinInfo', type=dict, location='json', required=True)
-        self.post_reqparse.add_argument('eventKey', type=str, location='json', required=True)
+        self.post_reqparse.add_argument('linkedinInfo', type=dict, location='json', required=False)
+        self.post_reqparse.add_argument('eventKey', type=str, location='json', required=False)
 
     def get(self):
         params = self.match_reqparse.parse_args()
@@ -39,7 +32,9 @@ class UserInfo(Resource):
         return jsonify({'bestMatch' : best_match})
 
     def post(self):
+        print "HERE"
         params = self.post_reqparse.parse_args()
+        print params
         linkedin_info = params['linkedinInfo']
         event_key = params['eventKey']
 
@@ -50,8 +45,6 @@ class UserInfo(Resource):
             event_id = matched_event.as_dict()['event_id']
         else:
             abort(400, 'No event matched this key!')
-
-        #linkedin_info = application.get_profile(selectors=['id', 'formatted-name', 'location', 'num-connections', 'picture-urls::(original)', 'summary'])
 
         # add a user and their photo if they don't already exist
         matching_user = session.query(Entity).filter_by(name = linkedin_info['formattedName']).first()
@@ -69,8 +62,16 @@ class UserInfo(Resource):
 
         # add that user's linkedin info for a specific event, if it doesn't already exist
         if session.query(EmployerInfo).filter_by(user_id = user_id, event_id = event_id).first() is None:
-            user_info = EmployerInfo(user_id, event_id, linkedin_info['summary'])
+            user_info = EmployerInfo(user_id, event_id, linkedin_info['summary'], linkedin_info['headline'], linkedin_info['publicProfileUrl'], linkedin_info['emailAddress'])
             session.add(user_info)
+
+            # add positions
+            for position in linkedin_info['positions']['values']:
+                date_start = position['startDate']['month'] + "/" + position['startDate']['year']
+                date_end = position['endDate']['month'] + "/" + position['endDate']['year'] if 'endDate' in position.keys() else None
+                position_to_add = EmployerJob(user_id, event_id, position['location']['name'], position['title'], position['company']['name'], date_start, date_end, position['isCurrent'])
+                session.add(position_to_add)
+
         session.commit()
         return "Success!"
 
@@ -93,11 +94,12 @@ class EventInfo(Resource):
         return jsonify({"eventAdded": new_event.as_dict()})
 
 # Define resource-based routes here
-my_api.add_resource(User, '/api/user', endpoint = 'user')
 my_api.add_resource(UserInfo, '/api/userInfo', endpoint = 'info')
 my_api.add_resource(EventInfo, '/api/event', endpoint = 'event')
 
 # main server run line
 if __name__ == '__main__':
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
     app.run(debug=True, port = port_num, host = '0.0.0.0')
 

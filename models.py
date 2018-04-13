@@ -19,8 +19,8 @@ class Event(Base):
 
     def as_dict(self):
         return {
-            'event_id' : self.event_id,
-            'event_key' : self.event_key,
+            'eventId' : self.event_id,
+            'eventKey' : self.event_key,
             'name' : self.name
         }
 
@@ -36,7 +36,7 @@ class Entity(Base):
 
     def as_dict(self):
         return {
-            'user_id' : self.user_id,
+            'userId' : self.user_id,
             'name' : self.name,
             'photo' : self.photo,
         }
@@ -47,23 +47,63 @@ class EmployerInfo(Base):
     user_id = Column('user_id', Integer, ForeignKey('tb_user.user_id'))
     event_id = Column('event_id', Integer, ForeignKey('tb_event.event_id'))
     bio = Column('bio', String)
+    headline = Column('headline', String)
+    profile_link = Column('profile_link', String)
+    email = Column('email', String)
 
     user_info = relationship('Entity')
+    user_jobs = relationship('EmployerJob')
 
-    # update when we have more info to add
-    def __init__(self, user_id, event_id, bio):
+    def __init__(self, user_id, event_id, bio, headline, profile_link, email):
         self.user_id = user_id
         self.event_id = event_id
         self.bio = bio
+        self.headline = headline
+        self.profile_link = profile_link
+        self.email = email
 
     def as_dict(self):
         return {
-            'user_id' : self.user_id,
-            'event_id' : self.event_id,
+            'userId' : self.user_id,
+            'eventId' : self.event_id,
             'bio' : self.bio,
-            'user_info' : self.user_info.as_dict()
+            'headline' : self.headline,
+            'profileLink' : self.profileLink,
+            'email' : self.email,
+            'userInfo' : self.user_info.as_dict(),
+            'userJobs' : self.user_jobs.as_dict()
         }
 
+class EmployerJob(Base):
+    __tablename__ = 'tb_employer_job'
+    employer_info_id = Column('employer_job_id', Integer, primary_key=True)
+    user_id = Column('user_id', Integer, ForeignKey('tb_user.user_id'))
+    event_id = Column('event_id', Integer, ForeignKey('tb_event.event_id'))
+    location = Column('location', String)
+    company_name = Column('company_name', String)
+    date_start = Column('date_start', String)
+    date_end = Column('date_end', String)
+    is_current = Column('is_current', Boolean)
+
+    def __init__(self, user_id, event_id, location, title, company_name, date_start, date_end, is_current):
+        self.user_id = user_id
+        self.event_id = event_id
+        self.location = location
+        self.title = title
+        self.company_name = company_name
+        self.date_start = date_start
+        self.date_end = date_end
+        self.is_current = is_current
+
+    def as_dict(self):
+        return {
+            'location' : self.location,
+            'title' : self.title,
+            'companyName' : self.company_name,
+            'dateStart' : self.date_start,
+            'dateEnd' : self.date_end,
+            'isCurrent' : self.is_current
+        }
 
 
 
