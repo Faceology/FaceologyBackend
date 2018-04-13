@@ -64,30 +64,28 @@ class EmployerInfo(Base):
 
     def as_dict(self):
         return {
-            'userId' : self.user_id,
-            'eventId' : self.event_id,
+            'employerInfoId' : self.employer_info_id,
             'bio' : self.bio,
             'headline' : self.headline,
-            'profileLink' : self.profileLink,
+            'profileLink' : self.profile_link,
             'email' : self.email,
             'userInfo' : self.user_info.as_dict(),
-            'userJobs' : self.user_jobs.as_dict()
+            'userJobs' : map(lambda x: x.as_dict(), self.user_jobs)
         }
 
 class EmployerJob(Base):
     __tablename__ = 'tb_employer_job'
-    employer_info_id = Column('employer_job_id', Integer, primary_key=True)
-    user_id = Column('user_id', Integer, ForeignKey('tb_user.user_id'))
-    event_id = Column('event_id', Integer, ForeignKey('tb_event.event_id'))
+    employer_job_id = Column('employer_job_id', Integer, primary_key=True)
+    employer_info_id = Column('employer_info_id', Integer, ForeignKey('tb_employer_info.employer_info_id'))
     location = Column('location', String)
+    title = Column('title', String)
     company_name = Column('company_name', String)
     date_start = Column('date_start', String)
     date_end = Column('date_end', String)
     is_current = Column('is_current', Boolean)
 
-    def __init__(self, user_id, event_id, location, title, company_name, date_start, date_end, is_current):
-        self.user_id = user_id
-        self.event_id = event_id
+    def __init__(self, employer_info_id, location, title, company_name, date_start, date_end, is_current):
+        self.employer_info_id = employer_info_id
         self.location = location
         self.title = title
         self.company_name = company_name

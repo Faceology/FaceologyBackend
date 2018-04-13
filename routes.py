@@ -32,9 +32,7 @@ class UserInfo(Resource):
         return jsonify({'bestMatch' : best_match})
 
     def post(self):
-        print "HERE"
         params = self.post_reqparse.parse_args()
-        print params
         linkedin_info = params['linkedinInfo']
         event_key = params['eventKey']
 
@@ -42,7 +40,7 @@ class UserInfo(Resource):
         event_id = None
         matched_event = session.query(Event).filter_by(event_key = event_key).first()
         if matched_event:
-            event_id = matched_event.as_dict()['event_id']
+            event_id = matched_event.as_dict()['eventId']
         else:
             abort(400, 'No event matched this key!')
 
@@ -54,22 +52,24 @@ class UserInfo(Resource):
                 new_user = Entity(str(linkedin_info['formattedName']), str(linkedin_info['pictureUrls']['values'][0]))
                 session.add(new_user)
                 session.commit()
-                user_id = new_user.as_dict()['user_id']
+                user_id = new_user.as_dict()['userId']
             else:
                 abort(400, 'No profile pictures for the authenticated user')
         else:
-            user_id = matching_user.as_dict()['user_id']
+            user_id = matching_user.as_dict()['userId']
 
         # add that user's linkedin info for a specific event, if it doesn't already exist
         if session.query(EmployerInfo).filter_by(user_id = user_id, event_id = event_id).first() is None:
             user_info = EmployerInfo(user_id, event_id, linkedin_info['summary'], linkedin_info['headline'], linkedin_info['publicProfileUrl'], linkedin_info['emailAddress'])
             session.add(user_info)
+            session.commit()
 
             # add positions
             for position in linkedin_info['positions']['values']:
-                date_start = position['startDate']['month'] + "/" + position['startDate']['year']
-                date_end = position['endDate']['month'] + "/" + position['endDate']['year'] if 'endDate' in position.keys() else None
-                position_to_add = EmployerJob(user_id, event_id, position['location']['name'], position['title'], position['company']['name'], date_start, date_end, position['isCurrent'])
+                print "ADDING POSITION"
+                date_start = str(position['startDate']['month']) + "/" + str(position['startDate']['year'])
+                date_end = str(position['endDate']['month']) + "/" + str(position['endDate']['year']) if 'endDate' in position.keys() else None
+                position_to_add = EmployerJob(user_info.as_dict()['employerInfoId'], position['location']['name'], position['title'], position['company']['name'], date_start, date_end, position['isCurrent'])
                 session.add(position_to_add)
 
         session.commit()
