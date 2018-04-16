@@ -70,7 +70,7 @@ class EmployerInfo(Base):
             'profileLink' : self.profile_link,
             'email' : self.email,
             'userInfo' : self.user_info.as_dict(),
-            'userJobs' : map(lambda x: x.as_dict(), self.user_jobs)
+            'userJobs' : list(map(lambda x: x.as_dict(), self.user_jobs))
         }
 
 class EmployerJob(Base):
