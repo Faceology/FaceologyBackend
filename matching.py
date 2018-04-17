@@ -20,10 +20,9 @@ def find_best_match(event_users, image):
 # player_other will have an additional field called 'score' post method-call
 def compute_similarities(event_users, photo_target):
     photo_target = BytesIO(photo_target)
-    resize = 0.25
     with Image.open(photo_target) as image:
         width, height = image.size
-        imageB = resizeimage.resize_contain(image, [int(resize * width), int(resize * height)])
+        imageB = resizeimage.resize_contain(image, [int(0.5 * width), int(0.5 * height)])
         imageB.save("imageB.png")
     unknown_picture = face_recognition.load_image_file("imageB.png")
 
@@ -34,7 +33,7 @@ def compute_similarities(event_users, photo_target):
             stored_file = BytesIO(urllib.urlopen(url_stored).read())
             with Image.open(stored_file) as image:
                 width, height = image.size
-                imageA = resizeimage.resize_contain(image, [int(resize * width), int(resize * height)])
+                imageA = resizeimage.resize_contain(image, [int(0.5 * width), int(0.5 * height)])
                 imageA.save("imageA.png")
 
             known_picture = face_recognition.load_image_file("imageA.png")
