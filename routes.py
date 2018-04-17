@@ -90,6 +90,14 @@ class EventInfo(Resource):
         self.reqparse.add_argument('eventKey', type=str, location='json', required=True)
         self.reqparse.add_argument('name', type=str, location='json', required=True)
 
+    def get(self):
+        params['eventKey'] = event_key
+        event = session.query(Event).filter_by(event_key = event_key).first()
+
+        if event is None:
+            abort(400, 'no matching event')
+        else:
+            return event.as_dict()
     def post(self):
         params = self.reqparse.parse_args()
         new_event = None
