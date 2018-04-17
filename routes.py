@@ -33,7 +33,7 @@ class UserInfo(Resource):
         event_users = session.query(EmployerInfo).filter(EmployerInfo.event_id == event_id).all()
         event_users = list(map(lambda user: user.as_dict(), event_users))
         best_match = find_best_match(event_users, params['image'])
-        return best_match if best_match['userInfo']['userId'] not in params['previousIds'] else None
+        return best_match if best_match and best_match['userInfo']['userId'] not in params['previousIds'] else None
 
     def post(self):
         params = self.post_reqparse.parse_args()
@@ -90,8 +90,12 @@ class EventInfo(Resource):
         self.reqparse.add_argument('eventKey', type=str, location='json', required=True)
         self.reqparse.add_argument('name', type=str, location='json', required=True)
 
+        self.get_reqparse = reqparse.RequestParser()
+        self.get_reqparse.add_argument('eventKey', type=str, location='args', required=True)
+
     def get(self):
-        params['eventKey'] = event_key
+        params = self.get_reqparse.parse_args()
+        event_key = params['eventKey']
         event = session.query(Event).filter_by(event_key = event_key).first()
 
         if event is None:
