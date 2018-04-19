@@ -1,4 +1,6 @@
 # FaceologyBackend
+
+## Running The Server
 This repository contains the backend for the Faceology mobile app along with experiments.
 
 Faceology's backend is hosted on an AmazonEC2 instance, but the REST API can also be deployed locally.
@@ -30,3 +32,15 @@ And after creating a DB in PSQL, run:
 Once dependencies are installed and the database is setup, the server can be ran with:
 
 `python3 routes.py`
+
+## Running The Experiments
+
+To run the experiments, the data collection scripts, FaceGrab.py and linkedingrab.py can be executed via:
+
+`python FaceGrab.py`
+`python linkedingrab.py`
+
+Then, after configuring experiments.py with the appropriate paths, any commented out experiment can be ran with:
+`python experiments.py`
+
+Note: the NIST data must be obtained and aggregated manually. It can be found here: https://www.nist.gov/srd/nist-special-database-18
